@@ -1,0 +1,79 @@
+#!/usr/bin/make -f
+
+pcpgui = pcp-gui
+pcpdoc = pcp-doc
+pcpgui_testsuite = pcp-gui-testsuite
+
+dirgui = debian/$(pcpgui)
+dirdoc = debian/$(pcpdoc)
+dirpcpgui_testsuite = debian/$(pcpgui_testsuite)
+
+zip = @export GZIP=-9q
+pkggui = $(zip); export DIST_ROOT=`pwd`/$(dirgui);
+pkgdoc = $(zip); export DIST_ROOT=`pwd`/$(dirdoc);
+pkgpcpgui_testsuite = $(zip); export DIST_ROOT=`pwd`/$(dirpcpgui_testsuite);
+
+options = export DEBUG=-DNDEBUG DISTRIBUTION=debian;
+checkdir = test -f debian/rules
+uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -f
+uninstalld = cat debian/$(pcpdoc).dirs | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -fr
+uninstallt = cat debian/$(pcpgui_testsuite).dirs | sed -e "s,^,debian/$(pcpgui)/," | xargs rm -fr
+
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
+build-stamp: config
+	@echo "== dpkg-buildpackage: build" 1>&2
+	$(MAKE) default
+	touch build-stamp
+
+config: .census
+.census:
+	@echo "== dpkg-buildpackage: configure" 1>&2
+	$(checkdir)
+	$(options) $(MAKE) configure
+	touch .census
+
+clean:
+	@echo "== dpkg-buildpackage: clean" 1>&2
+	$(checkdir)
+	-rm -f build-stamp .census
+	$(MAKE) distclean
+	-rm -rf $(dirgui) $(dirdoc) $(dirpcpgui_testsuite)
+	-rm -f debian/*substvars debian/files* debian/*.debhelper
+
+binary-indep: binary-arch
+
+binary-arch: checkroot build-stamp
+	@echo "== dpkg-buildpackage: binary-arch" 1>&2
+	$(checkdir)
+	-rm -rf $(dirgui) $(dirdoc) $(dirpcpgui_testsuite)
+	$(pkggui) $(MAKE) -C . install
+	$(pkggui) $(MAKE) -C build pcp-gui.src
+	$(pkgpcpgui_testsuite) $(MAKE) -C qa install
+
+	dh_installdocs
+	dh_installchangelogs
+	dh_installdirs
+	dh_install --sourcedir=debian/$(pcpgui)
+	@$(uninstall)
+	@$(uninstalld)
+	@$(uninstallt)
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs -N $(pcpgui)
+	dh_makeshlibs --package $(pcpgui)
+	dh_installdeb
+	dh_shlibdeps 2>/dev/null # qmake doesn't allow an explicit library list
+	dh_gencontrol
+
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+
+checkroot:
+	test 0 -eq `id -u`
+
+.PHONY: binary binary-arch binary-indep clean checkroot

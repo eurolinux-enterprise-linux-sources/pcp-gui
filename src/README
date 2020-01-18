@@ -1,0 +1,53 @@
+PCP GUI
+
+pmchart is designed to produce stripcharts from Performance Co-Pilot (PCP)
+performance metrics fetched from live sources (one or more pmcd hosts) and
+also historical sources (one or more PCP archives).
+
+pmtime is a graphical time controller utility that coordinates time updates
+and VCR-like playback for other utilities like pmchart and pmval.
+
+Instructions on building these tools can be found in doc/INSTALL.  Consult
+http://oss.sgi.com/projects/pcp/ for additional details about these tools.
+
+
+=== Planned for 2.0 ===
+
+    - Movable charts (drag & drop)
+    - Chart gadget (with Y-axis - pmgadgets-like)
+    - Bar gadget (horizonal/vertical - pmgadgets/gmemusage/grosview-like)
+    - LED gadget (pmgadgets-like)
+    - Label gadget (pmgadgets-like)
+    - Value gadget (new - optionally use QLCDNumber)
+    - Extended pmchart view format 
+	- chart positioning
+	- gadget panels
+	- "include <file>" syntax (for Overview view, and people
+	  like Nigel generating their own 'composite' views)
+	- support the pmgadgets configuration file syntax
+    - Need to regenerate many screenshots (Tutorial/Manual) with
+      whatever the final windows look like.
+
+
+=== Wishlist TODO items ===
+
+    - Merge Qwt 5.1 sources.
+    - The Qt-based metrics class needs:
+      o A hash for metric instance values instead of an array
+	(to support delete, and better support of dynamic indoms)
+    - pmtime should send a message to all clients on show/hide (except
+      for the client that explicitly requested the show/hide, if there
+      was one) - this would let the clients correctly track whether it
+      is visible/not (pmchart displays this state in the Options menu,
+      and uses that state to decide whether a hide/show is needed).
+    - Extend pmdumptext to use an abstracted pmtime class for pmtime
+      VCR control.
+    - Extend pmdumptext to allow input to drive pmtime remotely (will
+      need to allow SET message from clients at any time, not just on
+      initial exchange) and use this to automate QA of pmtime.
+    - Write automated QA for Save View (need a new command line option),
+      then with -C and -c, open (multiple) views, save, then verify.
+    - pmquery window initial sizing and resizing could use improvement.
+    - pmview code released by SGI - needs porting work
+	www.coin3d.org have an Inventor-compatible API, Qt bindings, and
+	support Mac/Windows/Linux - looks ideal for this.

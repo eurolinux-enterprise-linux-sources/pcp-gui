@@ -1,0 +1,47 @@
+AC_INIT(VERSION)
+
+AC_PREFIX_DEFAULT(/usr)
+AC_PACKAGE_GLOBALS(pcp-gui)
+AC_PACKAGE_UTILITIES(pcp-gui)
+AC_PACKAGE_NEED_QT_QMAKE
+AC_PACKAGE_NEED_QT_VERSION4
+
+dnl Debug/release style build? (non-debug by default)
+qt_release=release
+test -z "$QT_RELEASE" || qt_release="$QT_RELEASE"
+AC_SUBST(qt_release)
+
+pcp_dir=""
+if test -n "$PCP_DIR"; then
+    pcp_dir="$PCP_DIR"
+    export CPPFLAGS="$CPPFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
+    export CFLAGS="$CFLAGS -I$PCP_DIR/include -I$PCP_DIR/local/include"
+    export LDFLAGS="$LDFLAGS -L$PCP_DIR/bin -L$PCP_DIR/local/bin -L$PCP_DIR/lib"
+    export PATH="$PATH:$PCP_DIR/bin:$PCP_DIR/local/bin"
+fi
+AC_SUBST(pcp_dir)
+
+AC_PACKAGE_NEED_PMAPI_H
+AC_PACKAGE_NEED_LIBPCP
+AC_PACKAGE_HAVE_PM_TYPE_EVENT
+AC_PACKAGE_HAVE_PM_TIMEVAL_NOW
+AC_PACKAGE_HAVE_PM_SET_PROGNAME
+AC_PACKAGE_HAVE_PM_PATH_SEPARATOR
+AC_PACKAGE_HAVE_PM_CTXFLAG_SECURE
+AC_PACKAGE_HAVE_PM_CTXFLAG_AUTH
+
+AC_MANUAL_FORMAT
+
+AC_OUTPUT( \
+	src/include/builddefs \
+	src/include/version.h \
+	src/libqmc/libqmc.pro \
+	src/libqwt/libqwt.pro \
+	src/dumptext/pmdumptext.pro \
+	src/query/pmquery.info \
+	src/query/pmquery.pro \
+	src/chart/pmchart.info \
+	src/chart/pmchart.pro \
+	src/time/pmtime.info \
+	src/time/pmtime.pro \
+	pcp-gui.lsm )

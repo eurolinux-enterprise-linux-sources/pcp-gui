@@ -1,0 +1,57 @@
+# QA groups control
+
+# catch-all
+other
+
+# runs on QA host alone
+local
+
+# needs multiple QA hosts
+remote
+
+# test is known to have issues (races, hangs, etc)
+flakey
+
+# view configs
+config
+
+# metrics class tests
+libqmc
+
+# pmchart command
+config
+
+# pmdumptext command
+dumptext
+
+# test-group association ... one line per test
+#
+001 config chart local
+002 config chart local
+003 config chart local
+004 config chart local
+005 config chart local
+006 config chart local
+007 config chart local
+008 libqmc local
+009 libqmc local
+010 libqmc local
+011 libqmc local
+012 libqmc local
+013 libqmc local
+014 libqmc local
+015 libqmc local
+016 libqmc local
+017 libqmc local flakey
+018 libqmc local flakey
+019 libqmc local flakey
+020 libqmc local flakey
+021 libqmc local
+022 dumptext local
+023 dumptext local
+024 dumptext chart local
+025 dumptext local
+026 dumptext remote
+027 dumptext local
+028 dumptext local
+029 libqmc local

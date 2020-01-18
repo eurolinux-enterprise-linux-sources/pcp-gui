@@ -1,0 +1,84 @@
+#
+# Copyright (c) 2002-2003 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+BUILDRULES = $(TOPDIR)/src/include/buildrules
+
+MAKEOPTS = --no-print-directory
+# NB: don't use $(MAKEF), since that suppresses gnumake's subdir parallelization
+#MAKEF = $(MAKE) $(MAKEOPTS)
+SRCFILES = GNUmakefile $(HFILES) $(CFILES) $(LSRCFILES) $(LFILES) $(YFILES)
+
+ifdef PROJECT
+QTDIRDIRT = build debug release .obj .ui .moc .qrc *.xcodeproj *.app
+QTDIRT = *.a *.o ui_* moc_* qrc_* Info.plist Makefile* object_script.*
+endif
+DEPDIRT = dep dep.bak
+MANDIRT = *.[1-9].gz
+PODIRT = *.tmpo *.mo
+CDIRT = $(OBJECTS) $(LTOBJECTS) $(LTCOMMAND) $(LTLIBRARY)
+DIRT = $(LDIRT) $(DEPDIRT) $(MANDIRT) $(PODIRT) $(QTDIRT) $(CDIRT)
+DIRDIRT = $(LDIRDIRT) $(QTDIRDIRT)
+
+INSTALL	= $(TOPDIR)/install-sh -o $(PKG_USER) -g $(PKG_GROUP)
+
+ifeq "$(PCP_PLATFORM)" "mingw"
+INSTALL_MAN =
+else
+INSTALL_MAN = \
+	@for d in $(MAN_PAGES); do \
+		first=true; \
+		for m in `$(AWK) \
+			'/^\.S[h|H] NAME/ {ok=1; next} ok {print; exit}' $$d \
+			| $(SED) \
+				-e 's/^\.Nm //' -e 's/,/ /g' -e 's/\\-.*//' \
+				-e 's/\\\f[0-9]//g' -e 's/  / /g;q'`; \
+		do \
+			[ -z "$$m" -o "$$m" = "\\" ] && continue; \
+			t=$(MAN_DEST)/$$m.$(MAN_SECTION); \
+			if $$first; then \
+				if $(HAVE_ZIPPED_MANPAGES); then \
+					$(ZIP) -9 -c $$d > $$d.gz; _sfx=.gz; \
+				fi; \
+				if $(HAVE_BZIP2ED_MANPAGES) ; then \
+					$(BZIP2) -c $$d > $$d.bz2; _sfx=.bz2; \
+				fi; \
+				u=$$m.$(MAN_SECTION)$$_sfx; \
+				echo $(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx;\
+				$(INSTALL) -m 644 $${d}$$_sfx $${t}$$_sfx; \
+			else \
+				echo $(INSTALL) -S $$u $${t}$$_sfx; \
+				$(INSTALL) -S $$u $${t}$$_sfx; \
+			fi; \
+			first=false; \
+		done; \
+	done
+endif
+
+SUBDIRS_MAKERULE = \
+	+for d in $(SUBDIRS) ""; do \
+		if test -d "$$d" -a ! -z "$$d"; then \
+			$(ECHO) === $$d ===; \
+			$(MAKE) $(MAKEOPTS) -C $$d $@ || exit $$?; \
+		fi; \
+	done
+
+MAN_MAKERULE = \
+	@for f in *.[12345678] ""; do \
+		if test ! -z "$$f"; then \
+			$(ZIP) --best -c < $$f > $$f.gz; \
+		fi; \
+	done
+
+SOURCE_MAKERULE = \
+	@test -z "$$DIR" && DIR="."; \
+	for f in $(SRCFILES) ""; do \
+	    test -z "$$f" && break; \
+	    test -L "$$f" || $(ECHO) $$DIR/$$f; \
+	done; \
+	for d in `echo $(SUBDIRS)` ""; do \
+	    test -z "$$d" && break; \
+	    if test -d "$$d"; then \
+		$(MAKE) $(MAKEOPTS) DIR=$$DIR/$$d -C $$d $@ || exit $$?; \
+	    fi; \
+	done

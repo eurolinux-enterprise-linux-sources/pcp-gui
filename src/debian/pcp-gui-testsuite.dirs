@@ -1,0 +1,16 @@
+var/lib/pcp-gui/testsuite
+var/lib/pcp-gui/testsuite/archives
+var/lib/pcp-gui/testsuite/interact
+var/lib/pcp-gui/testsuite/src
+var/lib/pcp-gui/testsuite/src/dynamic
+var/lib/pcp-gui/testsuite/src/qmc_context
+var/lib/pcp-gui/testsuite/src/qmc_desc
+var/lib/pcp-gui/testsuite/src/qmc_dynamic
+var/lib/pcp-gui/testsuite/src/qmc_event
+var/lib/pcp-gui/testsuite/src/qmc_format
+var/lib/pcp-gui/testsuite/src/qmc_group
+var/lib/pcp-gui/testsuite/src/qmc_hosts
+var/lib/pcp-gui/testsuite/src/qmc_indom
+var/lib/pcp-gui/testsuite/src/qmc_metric
+var/lib/pcp-gui/testsuite/src/qmc_source
+var/lib/pcp-gui/testsuite/views

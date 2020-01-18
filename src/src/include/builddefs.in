@@ -1,0 +1,85 @@
+#
+# Copyright (c) 2004-2006 Silicon Graphics, Inc.
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# @configure_input@
+#
+
+ifndef _BUILDDEFS_INCLUDED_
+_BUILDDEFS_INCLUDED_ = 1
+include @pcp_dir@/etc/pcp.conf
+
+SHELL = /bin/sh
+
+LIBPCP		= @libpcp@
+PCP_DIR		= @pcp_dir@
+
+prefix = @prefix@
+datadir = @datadir@
+datarootdir = @datarootdir@
+exec_prefix = @exec_prefix@
+
+PKG_NAME	= @pkg_name@
+PKG_USER	= @pkg_user@
+PKG_GROUP	= @pkg_group@
+PKG_RELEASE	= @pkg_release@
+PKG_VERSION	= @pkg_version@
+PKG_MAJOR	= @pkg_major@
+PKG_MINOR	= @pkg_minor@
+PKG_REVISION	= @pkg_revision@
+PKG_PLATFORM	= $(PCP_PLATFORM)
+PKG_DISTRIBUTION= @pkg_distribution@
+PKG_BIN_DIR	= $(PCP_BIN_DIR)
+PKG_MAN_DIR	= $(PCP_MAN_DIR)
+PKG_DEMOS_DIR	= $(PCP_DEMOS_DIR)
+PKG_BOOKS_DIR	= @pkg_books_dir@
+PKG_ICON_DIR	= @pkg_icon_dir@
+PKG_DOC_DIR	= @pkg_doc_dir@
+PKG_DESKTOP_DIR	= $(datadir)/applications
+
+QMAKE		= @qmake@
+AWK		= @awk@
+SED		= @sed@
+TAR		= @tar@
+ZIP		= @zip@
+BZIP2		= @bzip2@
+#NB: don't override $(MAKE); gnumake sets it well, propagating -j etc.
+#MAKE		= @make@
+LEX		= @lex@
+YACC		= @yacc@
+ECHO		= @echo@
+SORT		= @sort@
+LN_S		= @LN_S@
+
+RPMBUILD	= @rpmbuild@
+PACKAGE_MAKER	= @package_maker@
+HDIUTIL		= @hdiutil@
+DPKG		= @dpkg@
+XMLTO		= @xmlto@
+DBLATEX		= @dblatex@
+PUBLICAN	= @publican@
+BOOK_TOOLCHAIN	= @book_toolchain@
+
+QT_RELEASE	= @qt_release@
+
+HAVE_PM_SET_PROGNAME = @have_pm_set_progname@
+HAVE_ZIPPED_MANPAGES = @have_zipped_manpages@
+HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
+
+include $(TOPDIR)/src/include/buildmacros
+
+endif
+
+#
+# For targets that should always be rebuilt,
+# define a target that is never up-to-date.
+# Targets needing this should depend on $(_FORCE)
+_FORCE = __force_build

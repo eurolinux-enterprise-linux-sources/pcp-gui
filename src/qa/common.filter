@@ -1,0 +1,102 @@
+# standard PCP GUI QA test output filters
+
+# Distro-specific filtering for init, rc scripts, chkconfig, et al
+#
+_filter_init_distro()
+{
+    if [ -f /etc/mandriva-release ]
+    then
+	# looks like this is a Mandriva bug ... see
+	# http://mandriva.598463.n5.nabble.com/Bug-24409-initscripts-New-netfs-provides-local-fs-scripts-can-t-be-turned-off-td869820.html
+	#
+	sed \
+	    -e '/Warning: netfs is needed by pcp in runlevel/d'
+    else
+	cat
+    fi
+}
+
+_filter_pcp_start()
+{
+    sed \
+	-e "s;$PCP_LOG_DIR/pmcd/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
+	-e "s;$PCP_LOG_DIR/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
+	-e "s;$PCP_RC_DIR/pmcd;\$PCP_RC_DIR/pmcd;" \
+	-e "s;$PCP_RC_DIR/pmlogger;\$PCP_RC_DIR/pmlogger;" \
+	-e "s;$PCP_RC_DIR/pcp;\$PCP_RC_DIR/pmcd;" \
+	-e '/$PCP_RC_DIR\/pmcd/{
+s/ PMCD / pmcd /
+}' \
+	-e "s;$PCP_BINADM_DIR/pmcd;\$PCP_BINADM_DIR/pmcd;" \
+	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
+	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
+	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
+	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
+	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
+        -e '/^Starting PCP$/d' \
+	-e 's/^\(Performance Co-Pilot starting .*\.\.\.\) *\(\$PCP_RC_DIR\)/\1\
+\2/' \
+	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
+        -e '/^Performance Co-Pilot starting/{
+s/\.\.\.[. ]*done/.../
+s/\.\.\.[. ]*failed/.../
+s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
+s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
+}' \
+	-e '/^Performance Co-Pilot installing/s//Installing/' \
+        -e '/: pmlogger not running$/d' \
+        -e '/^\.[. ]*done$/d' \
+        -e '/^\.[. ]*failed$/d' \
+	-e '/^Waiting for PMCD/{
+s/PMCD/pmcd/
+s/\.\.\.[. ]*done/.../
+}' \
+	-e 's/^\(Waiting .*\.\.\.\)\(\$PCP_RC_DIR\)/\1\
+\2/' \
+	-e '/^[ 	]*$/d' \
+    | _filter_init_distro
+}
+
+_filter_pcp_stop()
+{
+    sed \
+	-e '/Stopping pmlogger .../d' \
+	-e '/^Waiting for pmie/s/\.\.\.[. ]*done/.../' \
+	-e '/^Waiting for PMCD/{
+s/\.\.\.[. ]*done/.../
+s/PMCD/pmcd/
+}' \
+	-e '/Warning: Forcing PMCD to terminate!/s/PMCD/pmcd/' \
+	-e '/^Waiting for pmie/s/\.\.\. *$/.../' \
+	-e '/^Performance Co-Pilot/s/\.\.\. *$/.../' \
+        -e '/^\.[. ]*done$/d' \
+    | _filter_init_distro
+}
+
+_filter_post()
+{
+    sed \
+	-e 's/^host [^ :]*:/host <host>:/'
+}
+
+_filter_console()
+{
+    sed \
+	-e 's/^ *[0-9]*\.[0-9][0-9]/<timestamp>/' \
+	-e 's/0x0$/(nil)/' \
+	-e 's/0x[0-9a-f]*/<addr>/' \
+	-e 's/src=[^ ]*/src=<host>/' \
+	-e '/Tab::updateTimeAxis:/s/used .*/used .../'
+}
+
+_filter_views()
+{
+    sed \
+	-e "s,^Load View: $PCP_VAR_DIR,Load View: PCP_VAR_DIR,"
+}
+
+_filter_pmdumptext()
+{
+    sed \
+	-e 's/^[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/'
+}
